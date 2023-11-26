@@ -78,5 +78,60 @@ describe('AlbumService', () => {
     };
     await expect(() => service.create(newAlbum)).rejects.toHaveProperty("message", "La descripcion no puede estar vacia");
   });
+  it('should throw an error when the album name is null', async () => {
+    const newAlbum: AlbumEntity = {
+      id: faker.string.uuid(),
+      nombre: "",
+      fechaLanzamiento: faker.date.past(),
+      descripcion: faker.lorem.sentence(),
+      caratula: faker.image.url(),
+      performers: [],
+      tracks: []
+    };
+    await expect(() => service.create(newAlbum)).rejects.toHaveProperty("message", "El nombre no puede estar vacio");
+  });
+
+  it('findOne should return one album', async () => {
+    const storedAlbum: AlbumEntity = albumList[0];
+    const album: AlbumEntity = await service.findOne(storedAlbum.id);
+    expect(album).not.toBeNull();
+    expect(album.nombre).toEqual(storedAlbum.nombre);
+    expect(album.fechaLanzamiento).toEqual(storedAlbum.fechaLanzamiento);
+    expect(album.descripcion).toEqual(storedAlbum.descripcion);
+    expect(album.caratula).toEqual(storedAlbum.caratula);
+  });
+
+  it('findOne should throw an exception for an invalid album', async () => {
+    await expect(() => service.findOne("00000000-0000-0000-0000-000000000000")).rejects.toHaveProperty("message", "No existe el album con el albumId: 00000000-0000-0000-0000-000000000000")
+  });
+
+  it('findAll should return all albums', async () => {
+    const albums: AlbumEntity[] = await service.findAll();
+    expect(albums).not.toBeNull();
+    expect(albums).toHaveLength(albumList.length);
+  });
+
+  it('delete should delete a album', async () => {
+    const album: AlbumEntity = albumList[0];
+    await service.delete(album.id);
+    const deletedAlbum: AlbumEntity = await repository.findOne({ where: { id: album.id } });
+    expect(deletedAlbum).toBeNull();
+  });
+
+  it('delete should throw an exception for an invalid album', async () => {
+    await expect(() => service.delete('0')).rejects.toHaveProperty('message','El album con el id proporcionado no fue encontrado');
+  });
+
+it('delete should throw an exception for delete an album with track', async () => {
+  const album: AlbumEntity = albumList[0];
+  await repositoryTrack.save({
+    id: faker.string.uuid(),
+    nombre: faker.music.songName(),
+    duracion: +faker.number.int(),
+    album: album
+  });
+
+  await expect(() => service.delete(album.id)).rejects.toHaveProperty('message','No se puede eliminar el album porque tiene pistas asociadas');
+  });
 });
 

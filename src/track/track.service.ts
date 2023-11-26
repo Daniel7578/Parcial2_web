@@ -27,7 +27,7 @@ export class TrackService {
     async findOne(id: string): Promise<TrackEntity> {
         const track: TrackEntity = await this.trackRepository.findOne({ where: { id } });
         if (!track) {
-            throw new BusinessLogicException('No se enoontró un track con el id proporcionado ' + id, BusinessError.NOT_FOUND);
+            throw new BusinessLogicException('No se enontró un track con el id proporcionado ' + id, BusinessError.NOT_FOUND);
         }
         return track;
     }

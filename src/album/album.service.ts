@@ -36,7 +36,7 @@ export class AlbumService {
         return album;
     }
     async findAll(): Promise<AlbumEntity[]> {
-        return await this.albumRepository.find({ relations: ["performers", "tracks"] });
+        return await this.albumRepository.find({relations: ['tracks', 'performers']});
     }
 
     async delete(id: string): Promise<void> {
